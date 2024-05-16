@@ -1,4 +1,4 @@
-package com.romper.inventory;
+package com.romper;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
