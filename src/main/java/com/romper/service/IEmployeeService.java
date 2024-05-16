@@ -10,4 +10,5 @@ public interface IEmployeeService {
     public ResponseEntity<EmployeeResponseRest> searchById(Long id);
     public ResponseEntity<EmployeeResponseRest> save(Employee employee);
     public ResponseEntity<EmployeeResponseRest> update(Employee employee, Long id);
+    public ResponseEntity<EmployeeResponseRest> deleteById(Long id);
 }

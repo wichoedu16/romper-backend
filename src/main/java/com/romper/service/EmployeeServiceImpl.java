@@ -112,6 +112,21 @@ public class EmployeeServiceImpl implements IEmployeeService{
         }
     }
 
+    @Override
+    @Transactional
+    public ResponseEntity<EmployeeResponseRest> deleteById(Long id) {
+        EmployeeResponseRest response = new EmployeeResponseRest();
+        try {
+            employeeDao.deleteById(id);
+            response.setMetadata("Ok", "00", "Empleado eliminado");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error en searchById: ", e);
+            response.setMetadata("!Ok", "-1", "Error al consultar empleado por id");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     private void setEmployeeData(Employee source, Employee target) {
         target.setCedula(source.getCedula());
         target.setEstado(source.getEstado());

@@ -45,12 +45,23 @@ public class EmployeeRestController {
     }
 
     /**
-     * Save employee
+     * Update employee
      * @param employee
+     * @param id
      */
     @PutMapping("/employees/{id}")
     public ResponseEntity<EmployeeResponseRest> update(@RequestBody Employee employee, @PathVariable Long id){
         ResponseEntity<EmployeeResponseRest> response = employeeService.update(employee, id);
+        return response;
+    }
+
+    /**
+     * Delete employee by Id
+     * @param id
+     */
+    @DeleteMapping("/employees/{id}")
+    public ResponseEntity<EmployeeResponseRest> delete(@PathVariable Long id){
+        ResponseEntity<EmployeeResponseRest> response = employeeService.deleteById(id);
         return response;
     }
 }
