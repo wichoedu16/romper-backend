@@ -3,17 +3,22 @@ package com.romper.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Data;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 
 @Data
 @Entity
-@Table(name = "employee")
-public class Employee {
+@Table(name = "empleado")
+public class Empleado implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "anticipo-sequence")
+    @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "empleado-sequence")
     Long id;
+
+    @Column(name = "tipo_identificacion", nullable = false)
+    String tipoIdentificacion;
+
     @Column(name = "cedula", nullable = false, unique = true)
     String cedula;
 

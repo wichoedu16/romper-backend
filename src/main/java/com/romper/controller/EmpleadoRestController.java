@@ -1,8 +1,8 @@
 package com.romper.controller;
 
-import com.romper.model.Employee;
-import com.romper.response.EmployeeResponseRest;
-import com.romper.service.IEmployeeService;
+import com.romper.model.Empleado;
+import com.romper.response.EmpleadoResponseRest;
+import com.romper.service.IEmpleadoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,13 +10,11 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = {"http://localhost:4200"})
 @RestController
 @RequestMapping("/api/v1")
-public class EmployeeRestController {
-
-    private final IEmployeeService employeeService;
-
+public class EmpleadoRestController {
+    private final IEmpleadoService empleadoService;
     @Autowired
-    public EmployeeRestController(IEmployeeService employeeService) {
-        this.employeeService = employeeService;
+    public EmpleadoRestController(IEmpleadoService empleadoService) {
+        this.empleadoService = empleadoService;
     }
 
     /**
@@ -24,8 +22,8 @@ public class EmployeeRestController {
      * @return List of Employees
      */
     @GetMapping("/employees")
-    public ResponseEntity<EmployeeResponseRest> searchEmployees() {
-        return employeeService.search();
+    public ResponseEntity<EmpleadoResponseRest> searchAll() {
+        return empleadoService.search();
     }
 
     /**
@@ -34,8 +32,8 @@ public class EmployeeRestController {
      * @return Employee
      */
     @GetMapping("/employees/{id}")
-    public ResponseEntity<EmployeeResponseRest> searchEmployeesById(@PathVariable Long id) {
-        return employeeService.searchById(id);
+    public ResponseEntity<EmpleadoResponseRest> searchEmployeesById(@PathVariable Long id) {
+        return empleadoService.searchById(id);
     }
 
     /**
@@ -44,8 +42,8 @@ public class EmployeeRestController {
      * @return Saved Employee
      */
     @PostMapping("/employees")
-    public ResponseEntity<EmployeeResponseRest> save(@RequestBody Employee employee) {
-        return employeeService.save(employee);
+    public ResponseEntity<EmpleadoResponseRest> save(@RequestBody Empleado employee) {
+        return empleadoService.save(employee);
     }
 
     /**
@@ -55,8 +53,8 @@ public class EmployeeRestController {
      * @return Updated Employee
      */
     @PutMapping("/employees/{id}")
-    public ResponseEntity<EmployeeResponseRest> update(@RequestBody Employee employee, @PathVariable Long id) {
-        return employeeService.update(employee, id);
+    public ResponseEntity<EmpleadoResponseRest> update(@RequestBody Empleado employee, @PathVariable Long id) {
+        return empleadoService.update(employee, id);
     }
 
     /**
@@ -65,7 +63,7 @@ public class EmployeeRestController {
      * @return Deleted Employee
      */
     @DeleteMapping("/employees/{id}")
-    public ResponseEntity<EmployeeResponseRest> delete(@PathVariable Long id) {
-        return employeeService.deleteById(id);
+    public ResponseEntity<EmpleadoResponseRest> delete(@PathVariable Long id) {
+        return empleadoService.deleteById(id);
     }
 }
