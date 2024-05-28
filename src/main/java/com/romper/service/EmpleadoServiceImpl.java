@@ -1,8 +1,8 @@
 package com.romper.service;
 
-import com.romper.dao.IEmployeeDao;
-import com.romper.model.Employee;
-import com.romper.response.EmployeeResponseRest;
+import com.romper.dao.IEmpleadoDao;
+import com.romper.model.Empleado;
+import com.romper.response.EmpleadoResponseRest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,24 +15,24 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class EmployeeServiceImpl implements IEmployeeService{
+public class EmpleadoServiceImpl implements IEmpleadoService {
 
-    private static final Logger logger = LoggerFactory.getLogger(EmployeeServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(EmpleadoServiceImpl.class);
 
-    private final IEmployeeDao employeeDao;
+    private final IEmpleadoDao employeeDao;
 
     @Autowired
-    public EmployeeServiceImpl(IEmployeeDao employeeDao) {
+    public EmpleadoServiceImpl(IEmpleadoDao employeeDao) {
         this.employeeDao = employeeDao;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<EmployeeResponseRest> search() {
-        EmployeeResponseRest response = new EmployeeResponseRest();
+    public ResponseEntity<EmpleadoResponseRest> search() {
+        EmpleadoResponseRest response = new EmpleadoResponseRest();
         try {
-            List<Employee> employees = (List<Employee>) employeeDao.findAll();
-            response.getEmployeeResponse().setEmployee(employees);
+            List<Empleado> employees = (List<Empleado>) employeeDao.findAll();
+            response.getEmpleadoResponse().setEmpleado(employees);
             response.setMetadata("Ok", "00", "Respuesta exitosa");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
@@ -44,12 +44,12 @@ public class EmployeeServiceImpl implements IEmployeeService{
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<EmployeeResponseRest> searchById(Long id) {
-        EmployeeResponseRest response = new EmployeeResponseRest();
+    public ResponseEntity<EmpleadoResponseRest> searchById(Long id) {
+        EmpleadoResponseRest response = new EmpleadoResponseRest();
         try {
-            Optional<Employee> employee = employeeDao.findById(id);
+            Optional<Empleado> employee = employeeDao.findById(id);
             if (employee.isPresent()) {
-                response.getEmployeeResponse().setEmployee(List.of(employee.get()));
+                response.getEmpleadoResponse().setEmpleado(List.of(employee.get()));
                 response.setMetadata("Ok", "00", "Empleado encontrado");
                 return new ResponseEntity<>(response, HttpStatus.OK);
             } else {
@@ -65,12 +65,12 @@ public class EmployeeServiceImpl implements IEmployeeService{
 
     @Override
     @Transactional
-    public ResponseEntity<EmployeeResponseRest> save(Employee employee) {
-        EmployeeResponseRest response = new EmployeeResponseRest();
+    public ResponseEntity<EmpleadoResponseRest> save(Empleado employee) {
+        EmpleadoResponseRest response = new EmpleadoResponseRest();
         try {
-            Employee employeeSaved = employeeDao.save(employee);
+            Empleado employeeSaved = employeeDao.save(employee);
             if (employeeSaved != null) {
-                response.getEmployeeResponse().setEmployee(List.of(employeeSaved));
+                response.getEmpleadoResponse().setEmpleado(List.of(employeeSaved));
                 response.setMetadata("Ok", "00", "Empleado guardado");
                 return new ResponseEntity<>(response, HttpStatus.OK);
             } else {
@@ -86,15 +86,15 @@ public class EmployeeServiceImpl implements IEmployeeService{
 
     @Override
     @Transactional
-    public ResponseEntity<EmployeeResponseRest> update(Employee employee, Long id) {
-        EmployeeResponseRest response = new EmployeeResponseRest();
+    public ResponseEntity<EmpleadoResponseRest> update(Empleado employee, Long id) {
+        EmpleadoResponseRest response = new EmpleadoResponseRest();
         try {
-            Optional<Employee> employeeFound = employeeDao.findById(id);
+            Optional<Empleado> employeeFound = employeeDao.findById(id);
             if (employeeFound.isPresent()) {
                 setEmployeeData(employee, employeeFound.get());
-                Employee employeeUpdated = employeeDao.save(employeeFound.get());
+                Empleado employeeUpdated = employeeDao.save(employeeFound.get());
                 if (employeeUpdated != null) {
-                    response.getEmployeeResponse().setEmployee(List.of(employeeUpdated));
+                    response.getEmpleadoResponse().setEmpleado(List.of(employeeUpdated));
                     response.setMetadata("Ok", "00", "Empleado actualizado");
                     return new ResponseEntity<>(response, HttpStatus.OK);
                 } else {
@@ -112,7 +112,22 @@ public class EmployeeServiceImpl implements IEmployeeService{
         }
     }
 
-    private void setEmployeeData(Employee source, Employee target) {
+    @Override
+    @Transactional
+    public ResponseEntity<EmpleadoResponseRest> deleteById(Long id) {
+        EmpleadoResponseRest response = new EmpleadoResponseRest();
+        try {
+            employeeDao.deleteById(id);
+            response.setMetadata("Ok", "00", "Empleado eliminado");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.setMetadata("!Ok", "-1", "Error al consultar empleado por id");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private void setEmployeeData(Empleado source, Empleado target) {
+        target.setTipoIdentificacion(source.getTipoIdentificacion());
         target.setCedula(source.getCedula());
         target.setEstado(source.getEstado());
         target.setNombre(source.getNombre());
