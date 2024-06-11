@@ -5,10 +5,10 @@ import com.romper.response.DepartamentoResponseRest;
 import org.springframework.http.ResponseEntity;
 
 public interface IDepartamentoService {
-
-    public ResponseEntity<DepartamentoResponseRest> search();
-    public ResponseEntity<DepartamentoResponseRest> searchById(Long id);
-    public ResponseEntity<DepartamentoResponseRest> save(Departamento departamento);
-    public ResponseEntity<DepartamentoResponseRest> update(Departamento departamento, Long id);
-    public ResponseEntity<DepartamentoResponseRest> deleteById(Long id);
+    public ResponseEntity<DepartamentoResponseRest> buscarTodos();
+    public ResponseEntity<DepartamentoResponseRest> buscarPorId(Long id);
+    public ResponseEntity<DepartamentoResponseRest> buscarPorNombre(String nombre);
+    public ResponseEntity<DepartamentoResponseRest> crear(Departamento departamento);
+    public ResponseEntity<DepartamentoResponseRest> actualizar(Departamento departamento, Long id);
+    public ResponseEntity<DepartamentoResponseRest> eliminar(Long id);
 }

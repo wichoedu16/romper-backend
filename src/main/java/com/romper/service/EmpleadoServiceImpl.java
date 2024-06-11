@@ -1,7 +1,10 @@
 package com.romper.service;
 
+import com.romper.dao.ICargoDao;
 import com.romper.dao.IEmpleadoDao;
+import com.romper.model.Cargo;
 import com.romper.model.Empleado;
+import com.romper.response.CargoResponseRest;
 import com.romper.response.EmpleadoResponseRest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,7 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.EmptyStackException;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,114 +24,136 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
 
     private static final Logger logger = LoggerFactory.getLogger(EmpleadoServiceImpl.class);
 
-    private final IEmpleadoDao employeeDao;
+    private final IEmpleadoDao empleadoDao;
+    private final ICargoDao cargoDao;
 
     @Autowired
-    public EmpleadoServiceImpl(IEmpleadoDao employeeDao) {
-        this.employeeDao = employeeDao;
+    public EmpleadoServiceImpl(IEmpleadoDao empleadoDao, ICargoDao cargoDao) {
+        this.empleadoDao = empleadoDao;
+        this.cargoDao = cargoDao;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<EmpleadoResponseRest> search() {
+    public ResponseEntity<EmpleadoResponseRest> buscarTodos() {
         EmpleadoResponseRest response = new EmpleadoResponseRest();
         try {
-            List<Empleado> employees = (List<Empleado>) employeeDao.findAll();
-            response.getEmpleadoResponse().setEmpleado(employees);
-            response.setMetadata("Ok", "00", "Respuesta exitosa");
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            List<Empleado> empleados = (List<Empleado>) empleadoDao.findAll();
+            response.getEmpleadoResponse().setEmpleados(empleados);
+            response.setMetadata("Respuesta ok", "00", "Respuesta exitosa");
         } catch (Exception e) {
-            logger.error("Error en search: ", e);
-            response.setMetadata("!Ok", "-1", "Error en respuesta");
+            logger.error("Error al consultar todos los empleados", e);
+            response.setMetadata("Respuesta nok", "-1", "Error al consultar");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<EmpleadoResponseRest> searchById(Long id) {
+    public ResponseEntity<EmpleadoResponseRest> buscarPorId(Long id) {
         EmpleadoResponseRest response = new EmpleadoResponseRest();
         try {
-            Optional<Empleado> employee = employeeDao.findById(id);
-            if (employee.isPresent()) {
-                response.getEmpleadoResponse().setEmpleado(List.of(employee.get()));
-                response.setMetadata("Ok", "00", "Empleado encontrado");
-                return new ResponseEntity<>(response, HttpStatus.OK);
+            Empleado empleado = empleadoDao.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
+            response.getEmpleadoResponse().setEmpleados(List.of(empleado));
+            response.setMetadata("Respuesta ok", "00", "Empleado encontrado");
+        } catch (RuntimeException e) {
+            logger.error("Error al consultar el cargo por id", e);
+            response.setMetadata("Respuesta nok", "-1", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            logger.error("Error al consultar el empleado por id", e);
+            response.setMetadata("Respuesta nok", "-1", "Error al consultar por id");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseEntity<EmpleadoResponseRest> buscarPorNombre(String nombre) {
+        EmpleadoResponseRest response = new EmpleadoResponseRest();
+        try {
+            List<Empleado> empleados = empleadoDao.findByNombreContainingOrApellidoPaternoContainingOrApellidoMaternoContaining(nombre, nombre, nombre);
+            if (!empleados.isEmpty()) {
+                response.getEmpleadoResponse().setEmpleados(empleados);
+                response.setMetadata("Respuesta ok", "00", "Empleado encontrado");
             } else {
-                response.setMetadata("!Ok", "-1", "No existe el id: " + id);
+                response.setMetadata("Respuesta nok", "-1", "Empleado no encontrado");
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
-            logger.error("Error en searchById: ", e);
-            response.setMetadata("!Ok", "-1", "Error al consultar por id");
+            logger.error("Error al consultar el empleado por nombre", e);
+            response.setMetadata("Respuesta nok", "-1", "Error al consultar por nombre");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Override
     @Transactional
-    public ResponseEntity<EmpleadoResponseRest> save(Empleado employee) {
+    public ResponseEntity<EmpleadoResponseRest> crear(Empleado empleado) {
         EmpleadoResponseRest response = new EmpleadoResponseRest();
         try {
-            Empleado employeeSaved = employeeDao.save(employee);
-            if (employeeSaved != null) {
-                response.getEmpleadoResponse().setEmpleado(List.of(employeeSaved));
-                response.setMetadata("Ok", "00", "Empleado guardado");
-                return new ResponseEntity<>(response, HttpStatus.OK);
-            } else {
-                response.setMetadata("!Ok", "-1", "No se pudo guardar el empleado");
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-            }
-        } catch (Exception e) {
-            logger.error("Error en save: ", e);
-            response.setMetadata("!Ok", "-1", "Error al grabar el empleado");
+            Cargo cargo = cargoDao.findById(empleado.getCargoId())
+                    .orElseThrow(() -> new RuntimeException("Cargo no encontrado"));
+            empleado.setCargo(cargo);
+            Empleado empleadoGuardado = empleadoDao.save(empleado);
+            response.getEmpleadoResponse().setEmpleados(List.of(empleadoGuardado));
+            response.setMetadata("Respuesta ok", "00", "Empleado guardado");
+        }catch (RuntimeException e){
+            logger.error("Error al crear el empleado", e);
+            response.setMetadata("Respuesta nok", "-1", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }catch (Exception e){
+            logger.error("Error al crear el empleado", e);
+            response.setMetadata("Respuesta nok", "-1", "Error al crear cargo");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Override
     @Transactional
-    public ResponseEntity<EmpleadoResponseRest> update(Empleado employee, Long id) {
+    public ResponseEntity<EmpleadoResponseRest> actualizar(Empleado empleado, Long id) {
         EmpleadoResponseRest response = new EmpleadoResponseRest();
         try {
-            Optional<Empleado> employeeFound = employeeDao.findById(id);
-            if (employeeFound.isPresent()) {
-                setEmployeeData(employee, employeeFound.get());
-                Empleado employeeUpdated = employeeDao.save(employeeFound.get());
-                if (employeeUpdated != null) {
-                    response.getEmpleadoResponse().setEmpleado(List.of(employeeUpdated));
-                    response.setMetadata("Ok", "00", "Empleado actualizado");
-                    return new ResponseEntity<>(response, HttpStatus.OK);
-                } else {
-                    response.setMetadata("!Ok", "-1", "No se pudo actualizar el empleado");
-                    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-                }
-            } else {
-                response.setMetadata("!Ok", "-1", "No existe el empleado con id: " + id);
-                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-            }
-        } catch (Exception e) {
-            logger.error("Error en update: ", e);
-            response.setMetadata("!Ok", "-1", "Error al actualizar el empleado");
+            Empleado empleadoExistente = empleadoDao.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
+
+            actualizarDatosEmpleado(empleado, empleadoExistente);
+            Empleado empleadoActualizado = empleadoDao.save(empleadoExistente);
+            response.getEmpleadoResponse().setEmpleados(List.of(empleadoActualizado));
+            response.setMetadata("Respuesta ok", "00", "Empleado guardado");
+        }catch (RuntimeException e){
+            logger.error("Error al crear el empleado", e);
+            response.setMetadata("Respuesta nok", "-1", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }catch (Exception e){
+            logger.error("Error al crear el empleado", e);
+            response.setMetadata("Respuesta nok", "-1", "Error al crear cargo");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Override
     @Transactional
-    public ResponseEntity<EmpleadoResponseRest> deleteById(Long id) {
+    public ResponseEntity<EmpleadoResponseRest> eliminar(Long id) {
         EmpleadoResponseRest response = new EmpleadoResponseRest();
         try {
-            employeeDao.deleteById(id);
-            response.setMetadata("Ok", "00", "Empleado eliminado");
+            empleadoDao.deleteById(id);
+            response.setMetadata("Ok", "00", "Registro eliminado");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            response.setMetadata("!Ok", "-1", "Error al consultar empleado por id");
+            logger.error("Error al eliminar el empleado", e);
+            response.setMetadata("!Ok", "-1", "Error al eliminar");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    private void setEmployeeData(Empleado source, Empleado target) {
+    private void actualizarDatosEmpleado(Empleado source, Empleado target) {
         target.setTipoIdentificacion(source.getTipoIdentificacion());
         target.setCedula(source.getCedula());
         target.setEstado(source.getEstado());

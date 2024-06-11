@@ -1,9 +1,9 @@
 package com.romper.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
-
 import java.io.Serializable;
 import java.time.LocalDate;
 
@@ -13,14 +13,14 @@ import java.time.LocalDate;
 public class Empleado implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "empleado-sequence")
-    Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "tipo_identificacion", nullable = false)
-    String tipoIdentificacion;
+    private String tipoIdentificacion;
 
     @Column(name = "cedula", nullable = false, unique = true)
-    String cedula;
+    private String cedula;
 
     @Column(name = "usuario", nullable = false)
     private String usuario;
@@ -88,4 +88,17 @@ public class Empleado implements Serializable {
 
     @Column(name = "correo_institucional")
     private String correoInstitucional;
+
+    @ManyToOne
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JoinColumn(name = "cargo_id")
+    private Cargo cargo;
+
+    @Column(name = "cargo_id", insertable = false, updatable = false)
+    private Long cargoId;
+
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "foto_empleado", columnDefinition = "longblob")
+    private byte[] fotoEmpleado;
 }

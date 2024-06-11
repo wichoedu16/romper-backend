@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = {"http://localhost:4200"})
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/empleados")
 public class EmpleadoRestController {
     private final IEmpleadoService empleadoService;
     @Autowired
@@ -21,19 +21,29 @@ public class EmpleadoRestController {
      * Get all employees
      * @return List of Employees
      */
-    @GetMapping("/employees")
-    public ResponseEntity<EmpleadoResponseRest> searchAll() {
-        return empleadoService.search();
+    @GetMapping()
+    public ResponseEntity<EmpleadoResponseRest> buscarTodos() {
+        return empleadoService.buscarTodos();
     }
 
     /**
      * Get an employee by id
-     * @param id Employee ID
+     * @param id Employee
      * @return Employee
      */
-    @GetMapping("/employees/{id}")
-    public ResponseEntity<EmpleadoResponseRest> searchEmployeesById(@PathVariable Long id) {
-        return empleadoService.searchById(id);
+    @GetMapping("/{id}")
+    public ResponseEntity<EmpleadoResponseRest> buscarPorId(@PathVariable Long id) {
+        return empleadoService.buscarPorId(id);
+    }
+
+    /**
+     * Get an employee by nombre
+     * @param nombre
+     * @return Employee
+     */
+    @GetMapping("/filter/{nombre}")
+    public ResponseEntity<EmpleadoResponseRest> buscarPorNombre(@PathVariable String nombre) {
+        return empleadoService.buscarPorNombre(nombre);
     }
 
     /**
@@ -41,9 +51,9 @@ public class EmpleadoRestController {
      * @param employee Employee object
      * @return Saved Employee
      */
-    @PostMapping("/employees")
-    public ResponseEntity<EmpleadoResponseRest> save(@RequestBody Empleado employee) {
-        return empleadoService.save(employee);
+    @PostMapping()
+    public ResponseEntity<EmpleadoResponseRest> crear(@RequestBody Empleado employee) {
+        return empleadoService.crear(employee);
     }
 
     /**
@@ -52,9 +62,9 @@ public class EmpleadoRestController {
      * @param id Employee ID
      * @return Updated Employee
      */
-    @PutMapping("/employees/{id}")
-    public ResponseEntity<EmpleadoResponseRest> update(@RequestBody Empleado employee, @PathVariable Long id) {
-        return empleadoService.update(employee, id);
+    @PutMapping("/{id}")
+    public ResponseEntity<EmpleadoResponseRest> actualizar(@RequestBody Empleado employee, @PathVariable Long id) {
+        return empleadoService.actualizar(employee, id);
     }
 
     /**
@@ -62,8 +72,8 @@ public class EmpleadoRestController {
      * @param id Employee ID
      * @return Deleted Employee
      */
-    @DeleteMapping("/employees/{id}")
-    public ResponseEntity<EmpleadoResponseRest> delete(@PathVariable Long id) {
-        return empleadoService.deleteById(id);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<EmpleadoResponseRest> eliminar(@PathVariable Long id) {
+        return empleadoService.eliminar(id);
     }
 }

@@ -9,5 +9,5 @@ import java.util.List;
 @Data
 public class CargoResponse {
 
-    private List<Cargo> cargo;
+    private List<Cargo> cargos;
 }

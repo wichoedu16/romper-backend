@@ -9,5 +9,5 @@ import java.util.List;
 @Data
 public class DepartamentoResponse {
 
-    private List<Departamento> departamento;
+    private List<Departamento> departamentos;
 }

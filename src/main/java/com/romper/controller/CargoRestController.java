@@ -3,13 +3,12 @@ package com.romper.controller;
 import com.romper.model.Cargo;
 import com.romper.response.CargoResponseRest;
 import com.romper.service.ICargoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = {"http://localhost:4200"})
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/cargos")
 public class CargoRestController {
     private final ICargoService cargoService;
 
@@ -18,31 +17,55 @@ public class CargoRestController {
     }
 
     /**
-     * Get all cargos
-     * @return List of Cargos
+     * Obtener todos los cargos
+     * @return lista de cargos
      */
-    @GetMapping("/cargos")
-    public ResponseEntity<CargoResponseRest> searchAll() {
-        return cargoService.search();
+    @GetMapping()
+    public ResponseEntity<CargoResponseRest> buscarTodos() {
+        return cargoService.buscarTodos();
     }
 
     /**
-     * Get an cargo by id
-     * @param id cargo ID
+     * Obtener cargo id
      * @return cargo
      */
-    @GetMapping("/cargos/{id}")
-    public ResponseEntity<CargoResponseRest> searchById(@PathVariable Long id) {
-        return cargoService.searchById(id);
+    @GetMapping("/{id}")
+    public ResponseEntity<CargoResponseRest> buscarPorId(@PathVariable Long id) {
+        return cargoService.buscarPorId(id);
     }
 
     /**
-     * Save cargo
-     * @param cargo cargo object
-     * @return Saved departament
+     * Obtener lista de cargos por nombre
+     * @return lista de cargos
      */
-    @PostMapping("/cargos")
-    public ResponseEntity<CargoResponseRest> save(@RequestBody Cargo cargo){
-        return cargoService.save(cargo);
+    @GetMapping("/filter/{nombre}")
+    public ResponseEntity<CargoResponseRest> buscarPorNombre(@PathVariable String nombre) {
+        return cargoService.buscarPorNombre(nombre);
+    }
+
+    /**
+     * Guardar cargo
+     * @return cargo guardado
+     */
+    @PostMapping()
+    public ResponseEntity<CargoResponseRest> crear(@RequestBody Cargo cargo){
+        return cargoService.crear(cargo);
+    }
+
+
+    /**
+     * actualizar cargos
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<CargoResponseRest> actualizar(@RequestBody Cargo category, @PathVariable Long id) {
+        return cargoService.actualizar(category, id);
+    }
+
+    /**
+     * eliminar un cargos
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<CargoResponseRest> eliminar(@PathVariable Long id) {
+        return cargoService.eliminar(id);
     }
 }
