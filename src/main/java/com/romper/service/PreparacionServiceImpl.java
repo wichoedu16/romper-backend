@@ -1,6 +1,7 @@
 package com.romper.service;
 
 import com.romper.dao.*;
+import com.romper.dto.PreparacionDTO;
 import com.romper.model.*;
 import com.romper.response.PreparacionResponseRest;
 import org.slf4j.Logger;
@@ -11,20 +12,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class PreparacionServiceImpl implements IPreparacionService {
     private final IPreparacionDao preparacionDao;
     private final IIngredienteDao ingredienteDao;
-    private final IRecetaDao recetaDao;
+    private final IPlatoDao platoDao;
     private static final Logger logger = LoggerFactory.getLogger(PreparacionServiceImpl.class);
 
     @Autowired
-    public PreparacionServiceImpl(IPreparacionDao preparacionDao, IIngredienteDao ingredienteDao, IRecetaDao recetaDao) {
+    public PreparacionServiceImpl(IPreparacionDao preparacionDao, IIngredienteDao ingredienteDao, IPlatoDao platoDao) {
         this.preparacionDao = preparacionDao;
         this.ingredienteDao = ingredienteDao;
-        this.recetaDao = recetaDao;
+        this.platoDao = platoDao;
     }
 
     @Override
@@ -33,10 +35,11 @@ public class PreparacionServiceImpl implements IPreparacionService {
         PreparacionResponseRest response = new PreparacionResponseRest();
         try {
             List<Preparacion> preparaciones = (List<Preparacion>) preparacionDao.findAll();
-            response.getPreparacionResponse().setPreparaciones(preparaciones);
+            List<PreparacionDTO> dtoPreparacion = pasarEntidadADto(preparaciones);
+            response.getPreparacionResponse().setPreparaciones(dtoPreparacion);
             response.setMetadata("Respuesta ok", "00", "Respuesta exitosa");
         } catch (Exception e) {
-            logger.error("Error al consultar todos los cargos", e);
+            logger.error("Error al consultar todos las preparacion", e);
             response.setMetadata("Respuesta nok", "-1", "Error al consultar");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -45,23 +48,37 @@ public class PreparacionServiceImpl implements IPreparacionService {
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<PreparacionResponseRest> buscarPorId(Long id) {
+    public ResponseEntity<PreparacionResponseRest> buscarPorPlatoId(Long id) {
         PreparacionResponseRest response = new PreparacionResponseRest();
         try {
-            Preparacion preparacion = preparacionDao.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Cargo no encontrado"));
-            response.getPreparacionResponse().setPreparaciones(List.of(preparacion));
-            response.setMetadata("Respuesta ok", "00", "Cargo encontrado");
-        } catch (RuntimeException e) {
-            logger.error("Error al consultar el cargo por id", e);
-            response.setMetadata("Respuesta nok", "-1", e.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            List<Preparacion> preparaciones = preparacionDao.findByPlatoId(id);
+            if (!preparaciones.isEmpty()) {
+                List<PreparacionDTO> dtoPreparacion = pasarEntidadADto(preparaciones);
+                response.getPreparacionResponse().setPreparaciones(dtoPreparacion);
+                response.setMetadata("Respuesta ok", "00", "Preparaciones encontradas");
+            } else {
+                response.setMetadata("Respuesta nok", "-1", "No existen preparaciones para este plato");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
         } catch (Exception e) {
-            logger.error("Error al consultar el cargo por id", e);
-            response.setMetadata("Respuesta nok", "-1", "Error al consultar por id");
+            logger.error("Error al consultar la preparacion para el plato ", e);
+            response.setMetadata("Respuesta nok", "-1", "Error al consultar la preparacion");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    private static List<PreparacionDTO> pasarEntidadADto(List<Preparacion> preparaciones) {
+        List<PreparacionDTO> dtoPreparacion = new ArrayList<>();
+        for (Preparacion receta : preparaciones) {
+            PreparacionDTO dto = new PreparacionDTO();
+            dto.setPlato(receta.getPlato().getNombre());
+            dto.setIngrediente(receta.getIngrediente().getNombre());
+            dto.setCantidad(receta.getCantidad());
+            dto.setIngredienteId(receta.getIngredienteId());
+            dtoPreparacion.add(dto);
+        }
+        return dtoPreparacion;
     }
 
     @Override
@@ -69,16 +86,17 @@ public class PreparacionServiceImpl implements IPreparacionService {
     public ResponseEntity<PreparacionResponseRest> buscarPorNombre(String nombre) {
         PreparacionResponseRest response = new PreparacionResponseRest();
         try {
-            List<Preparacion> cargos = preparacionDao.findByNombreProductoContainingIgnoreCase(nombre);
-            if (!cargos.isEmpty()) {
-                response.getPreparacionResponse().setPreparaciones(cargos);
-                response.setMetadata("Respuesta ok", "00", "Cargo encontrado");
+            List<Preparacion> preparaciones = preparacionDao.findByNombreProductoContainingIgnoreCase(nombre);
+            if (!preparaciones.isEmpty()) {
+                List<PreparacionDTO> dtoPreparacion = pasarEntidadADto(preparaciones);
+                response.getPreparacionResponse().setPreparaciones(dtoPreparacion);
+                response.setMetadata("Respuesta ok", "00", "Preparacion encontrado");
             } else {
-                response.setMetadata("Respuesta nok", "-1", "Cargo no encontrado");
+                response.setMetadata("Respuesta nok", "-1", "Preparacion no encontrado");
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
-            logger.error("Error al consultar el cargo por nombre", e);
+            logger.error("Error al consultar el Preparacion por nombre", e);
             response.setMetadata("Respuesta nok", "-1", "Error al consultar por nombre");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -91,54 +109,74 @@ public class PreparacionServiceImpl implements IPreparacionService {
         PreparacionResponseRest response = new PreparacionResponseRest();
         try {
             if (!existeIdIngrediente(preparacion.getIngredienteId()) &&
-                    !existeIdPlato(preparacion.getRecetaId())) {
-                response.setMetadata("Respuesta nok", "-1", "No se encuntras ingredientes/platos");
+                    !existeIdPlato(preparacion.getPlatoId())) {
+                response.setMetadata("Respuesta nok", "-1", "No se encuentran ingredientes/platos");
                 return new ResponseEntity<>(response, HttpStatus.NOT_ACCEPTABLE);
             }
 
             Ingrediente ingrediente = ingredienteDao.findById(preparacion.getIngredienteId())
                     .orElseThrow(() -> new RuntimeException("Ingrediente no encontrado"));
             preparacion.setIngrediente(ingrediente);
-            Receta receta = recetaDao.findById(preparacion.getRecetaId())
-                    .orElseThrow(() -> new RuntimeException("Receta no encontrado"));
-            preparacion.setReceta(receta);
+            Plato plato = platoDao.findById(preparacion.getPlatoId())
+                    .orElseThrow(() -> new RuntimeException("Plato no encontrado"));
+            preparacion.setPlato(plato);
 
-            Preparacion preparacionGuardada = preparacionDao.save(preparacion);
-            response.getPreparacionResponse().setPreparaciones(List.of(preparacionGuardada));
-            response.setMetadata("Respuesta ok", "00", "Preparacion guardada");
+            if (validarIngredientesRepetidos(ingrediente.getId(), plato)){
+                response.setMetadata("Respuesta nok", "-1", "Se encontraron ingredientes repetidos");
+                return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+            }else {
+                Preparacion preparacionGuardada = preparacionDao.save(preparacion);
+                response.getPreparacionResponse().setPreparaciones(pasarEntidadADto(List.of(preparacionGuardada)));
+                response.setMetadata("Respuesta ok", "00", "Preparacion guardada");
+            }
         } catch (RuntimeException e) {
             logger.error("Error al crear la preparacion", e);
             response.setMetadata("Respuesta nok", "-1", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            logger.error("Error al crear el cargo", e);
-            response.setMetadata("Respuesta nok", "-1", "Error al crear cargo");
+            logger.error("Error al crear la Preparacion", e);
+            response.setMetadata("Respuesta nok", "-1", "Error al crear Preparacion");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    private boolean existeIdIngrediente(Long ingredienteId) {
-        return ingredienteDao.findById(ingredienteId).isPresent();
-    }
-
-    private boolean existeIdPlato(Long platoId) {
-        return recetaDao.findById(platoId).isPresent();
+    private boolean validarIngredientesRepetidos(Long ingredienteId, Plato plato) {
+        boolean existe = false;
+        List<Preparacion>  preparaciones = preparacionDao.findByPlatoId(plato.getId());
+        for (Preparacion receta: preparaciones) {
+            if (receta.getIngredienteId().equals(ingredienteId)) {
+                existe = true;
+            }
+        }
+        return existe;
     }
 
     @Override
     @Transactional
-    public ResponseEntity<PreparacionResponseRest> eliminar(Long id) {
+    public ResponseEntity<PreparacionResponseRest> eliminar(Long platoId, Long ingredienteId) {
         PreparacionResponseRest response = new PreparacionResponseRest();
         try {
-            preparacionDao.deleteById(id);
-            response.setMetadata("Respuesta ok", "00", "Registro eliminado");
+            Preparacion preparacion = preparacionDao.findByPlatoIdAndIngredienteId(platoId, ingredienteId);
+            if (null != preparacion){
+                preparacionDao.delete(preparacion);
+                response.setMetadata("Respuesta ok", "00", "ELiminado correctamente");
+            }
         } catch (Exception e) {
             logger.error("Error al eliminar la receta", e);
             response.setMetadata("Respuesta nok", "-1", "Error al eliminar");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+    private boolean existeIdIngrediente(Long ingredienteId) {
+        return ingredienteDao.findById(ingredienteId).isPresent();
+    }
+
+    private boolean existeIdPlato(Long platoId) {
+        return platoDao.findById(platoId).isPresent();
     }
 
 }

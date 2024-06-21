@@ -48,6 +48,8 @@ public class IngredienteServiceImpl implements IIngredienteService {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+
+
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<IngredienteResponseRest> buscarPorId(Long id) {

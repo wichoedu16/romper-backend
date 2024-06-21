@@ -7,4 +7,7 @@ import java.util.List;
 
 public interface IPreparacionDao extends CrudRepository<Preparacion, Long> {
     List<Preparacion> findByNombreProductoContainingIgnoreCase(String nombre);
+    List<Preparacion> findByPlatoId(Long id);
+
+    Preparacion findByPlatoIdAndIngredienteId(Long platoId, Long ingredienteId);
 }

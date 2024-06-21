@@ -21,9 +21,9 @@ public class PreparacionRestController {
         return preparacionService.buscarTodos();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<PreparacionResponseRest> buscarPorId(@PathVariable Long id) {
-        return preparacionService.buscarPorId(id);
+    @GetMapping("/plato/{id}")
+    public ResponseEntity<PreparacionResponseRest> buscarPorPlatoId(@PathVariable Long id) {
+        return preparacionService.buscarPorPlatoId(id);
     }
 
     @GetMapping("/filtro/{nombre}")
@@ -36,8 +36,8 @@ public class PreparacionRestController {
         return preparacionService.crear(preparacion);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<PreparacionResponseRest> eliminar(@PathVariable Long id) {
-        return preparacionService.eliminar(id);
+    @DeleteMapping("/plato/{platoId}/{ingredienteId}")
+    public ResponseEntity<PreparacionResponseRest> eliminar(@PathVariable Long platoId, @PathVariable Long ingredienteId) {
+        return preparacionService.eliminar(platoId, ingredienteId);
     }
 }

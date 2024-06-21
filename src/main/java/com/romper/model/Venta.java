@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -20,17 +20,19 @@ public class Venta implements Serializable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "venta-sequence")
     private Long id;
     @Column(name = "fecha_venta")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
-    private LocalDate fechaVenta;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
+    private LocalDateTime fechaVenta;
     @Column(nullable = false)
-    private BigDecimal costo;
+    private int cantidad;
     @Column(nullable = false)
-    private BigDecimal pvp;
+    private BigDecimal precio;
+    @Column(nullable = false)
+    private BigDecimal total;
 
     @ManyToOne
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @JoinColumn(name = "plato_id")
-    private Receta receta;
+    private Plato plato;
     @Column(name = "plato_id", insertable = false, updatable = false)
     private Long platoId;
 }

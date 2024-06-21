@@ -19,8 +19,20 @@ public class Proveedor implements Serializable {
     @Column(unique = true, nullable = false)
     private String empresa;
     @Column(nullable = false)
-    private String nombre;
+    private String nombreProveedor;
     @Column(nullable = false)
-    private String contacto;
+    private String telefonoProveedor;
 
+    private String banco;
+    @Column(name = "tipo_cuenta")
+    private String tipoCuenta;
+    @Column(name = "numero_cuenta", nullable = false)
+    private String numeroCuenta;
+    private String identificacion;
+    @Column(name = "nombre_contacto", nullable = false)
+    private String nombreContacto;
+    @Column(name = "telefono_contacto", nullable = false)
+    private String telefonoContacto;
+    @Column(name = "correo_contacto", nullable = false)
+    private String correoContacto;
 }

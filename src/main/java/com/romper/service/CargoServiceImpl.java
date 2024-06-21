@@ -110,7 +110,7 @@ public class CargoServiceImpl implements ICargoService {
             response.setMetadata("Respuesta nok", "-1", "Error al crear cargo");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @Override

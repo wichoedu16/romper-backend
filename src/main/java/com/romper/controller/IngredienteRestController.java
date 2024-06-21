@@ -1,13 +1,14 @@
 package com.romper.controller;
 
-import com.romper.model.Cargo;
 import com.romper.model.Ingrediente;
-import com.romper.response.CargoResponseRest;
 import com.romper.response.IngredienteResponseRest;
-import com.romper.service.ICargoService;
 import com.romper.service.IIngredienteService;
+import com.romper.util.ExportadorExcelIngredientes;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @CrossOrigin(origins = {"http://localhost:4200"})
 @RestController
@@ -23,6 +24,8 @@ public class IngredienteRestController {
     public ResponseEntity<IngredienteResponseRest> buscarTodos() {
         return ingredienteService.buscarTodos();
     }
+
+
 
     @GetMapping("/{id}")
     public ResponseEntity<IngredienteResponseRest> buscarPorId(@PathVariable Long id) {
@@ -47,5 +50,16 @@ public class IngredienteRestController {
     @DeleteMapping("/{id}")
     public ResponseEntity<IngredienteResponseRest> eliminar(@PathVariable Long id) {
         return ingredienteService.eliminar(id);
+    }
+
+    @GetMapping("/exportar/excel")
+    public void exportarAExcel(HttpServletResponse response) throws IOException {
+        response.setContentType("application/octet-stream");
+        String nombreCabecera = "Content-Disposition";
+        String valorCabecera = "attachment; filename=ingredientes.xls";
+        response.setHeader(nombreCabecera, valorCabecera);
+        ResponseEntity<IngredienteResponseRest> ingredienteResponse =  ingredienteService.buscarTodos();
+        ExportadorExcelIngredientes exportadorExcel = new ExportadorExcelIngredientes(ingredienteResponse.getBody().getIngredienteResponse().getIngredientes());
+        exportadorExcel.exportar(response);
     }
 }

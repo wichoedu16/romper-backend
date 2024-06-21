@@ -9,6 +9,6 @@ import java.util.Optional;
 
 public interface IIngredienteDao extends CrudRepository<Ingrediente, Long> {
     List<Ingrediente> findByNombreContainingIgnoreCase(String nombre);
-
     List<Ingrediente> findIngredienteByProveedorId(Long id);
+
 }

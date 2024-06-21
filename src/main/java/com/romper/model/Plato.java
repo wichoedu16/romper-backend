@@ -12,10 +12,10 @@ import java.math.BigDecimal;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "receta")
-public class Receta implements Serializable {
+@Table(name = "plato")
+public class Plato implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "receta-sequence")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "plato-sequence")
     private Long id;
     @Column(unique = true, nullable = false)
     private String nombre;

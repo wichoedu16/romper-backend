@@ -6,8 +6,8 @@ import org.springframework.http.ResponseEntity;
 
 public interface IPreparacionService {
     ResponseEntity<PreparacionResponseRest> buscarTodos();
-    ResponseEntity<PreparacionResponseRest> buscarPorId(Long id);
+    ResponseEntity<PreparacionResponseRest> buscarPorPlatoId(Long id);
     ResponseEntity<PreparacionResponseRest> buscarPorNombre(String nombre);
     ResponseEntity<PreparacionResponseRest> crear(Preparacion preparacion);
-    ResponseEntity<PreparacionResponseRest> eliminar(Long id);
+    ResponseEntity<PreparacionResponseRest> eliminar(Long platoId, Long ingredienteId);
 }

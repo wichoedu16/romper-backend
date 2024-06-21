@@ -1,9 +1,9 @@
 package com.romper.service;
 
 
-import com.romper.dao.IRecetaDao;
-import com.romper.model.Receta;
-import com.romper.response.RecetaResponseRest;
+import com.romper.dao.IPlatoDao;
+import com.romper.model.Plato;
+import com.romper.response.PlatoResponseRest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,25 +16,25 @@ import java.util.List;
 
 
 @Service
-public class RecetaServiceImpl implements IRecetaService {
-    private static final Logger logger = LoggerFactory.getLogger(RecetaServiceImpl.class);
-    private final IRecetaDao recetaDao;
+public class PlatoServiceImpl implements IPlatoService {
+    private static final Logger logger = LoggerFactory.getLogger(PlatoServiceImpl.class);
+    private final IPlatoDao platoDao;
 
     @Autowired
-    public RecetaServiceImpl(IRecetaDao recetaDao) {
-        this.recetaDao = recetaDao;
+    public PlatoServiceImpl(IPlatoDao platoDao) {
+        this.platoDao = platoDao;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<RecetaResponseRest> buscarTodos() {
-        RecetaResponseRest response = new RecetaResponseRest();
+    public ResponseEntity<PlatoResponseRest> buscarTodos() {
+        PlatoResponseRest response = new PlatoResponseRest();
         try {
-            List<Receta> recetas = (List<Receta>) recetaDao.findAll();
-            if(recetas.isEmpty()){
-                response.setMetadata("Respuesta ok", "01", "No existen recetas");
+            List<Plato> platos = (List<Plato>) platoDao.findAll();
+            if(platos.isEmpty()){
+                response.setMetadata("Respuesta ok", "01", "No existen platos");
             }else{
-                response.getRecetaResponse().setRecetas(recetas);
+                response.getPlatoResponse().setPlatos(platos);
                 response.setMetadata("Respuesta ok", "00", "Respuesta exitosa");
             }
 
@@ -48,13 +48,13 @@ public class RecetaServiceImpl implements IRecetaService {
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<RecetaResponseRest> buscarPorId(Long id) {
-        RecetaResponseRest response = new RecetaResponseRest();
+    public ResponseEntity<PlatoResponseRest> buscarPorId(Long id) {
+        PlatoResponseRest response = new PlatoResponseRest();
         try {
-            Receta receta = recetaDao.findById(id)
-                    .orElseThrow(() -> new RuntimeException("receta no encontrado"));
-            response.getRecetaResponse().setRecetas(List.of(receta));
-            response.setMetadata("Respuesta ok", "00", "receta encontrado");
+            Plato plato = platoDao.findById(id)
+                    .orElseThrow(() -> new RuntimeException("plato no encontrado"));
+            response.getPlatoResponse().setPlatos(List.of(plato));
+            response.setMetadata("Respuesta ok", "00", "plato encontrado");
         } catch (RuntimeException e) {
             logger.error("Error al consultar el plato por id", e);
             response.setMetadata("Respuesta nok", "-1", e.getMessage());
@@ -69,49 +69,49 @@ public class RecetaServiceImpl implements IRecetaService {
 
     @Override
     @Transactional
-    public ResponseEntity<RecetaResponseRest> crear(Receta receta) {
-        RecetaResponseRest response = new RecetaResponseRest();
+    public ResponseEntity<PlatoResponseRest> crear(Plato plato) {
+        PlatoResponseRest response = new PlatoResponseRest();
         try {
-            Receta recetaGuardado = recetaDao.save(receta);
-            response.getRecetaResponse().setRecetas(List.of(recetaGuardado));
-            response.setMetadata("Respuesta ok", "00", "Receta guardado");
+            Plato platoGuardado = platoDao.save(plato);
+            response.getPlatoResponse().setPlatos(List.of(platoGuardado));
+            response.setMetadata("Respuesta ok", "00", "Plato guardado");
         } catch (Exception e) {
-            logger.error("Error al crear el receta", e);
-            response.setMetadata("Respuesta nok", "-1", "Error al crear el receta");
+            logger.error("Error al crear el plato", e);
+            response.setMetadata("Respuesta nok", "-1", "Error al crear el plato");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<RecetaResponseRest> actualizar(Receta receta, Long id) {
-        RecetaResponseRest response = new RecetaResponseRest();
+    public ResponseEntity<PlatoResponseRest> actualizar(Plato plato, Long id) {
+        PlatoResponseRest response = new PlatoResponseRest();
         try {
-            Receta recetaBuscado = recetaDao.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Receta no encontrado"));
-            actualizarDatosPlato(receta, recetaBuscado);
-            Receta recetaActualizado = recetaDao.save(recetaBuscado);
-            response.getRecetaResponse().setRecetas(List.of(recetaActualizado));
-            response.setMetadata("Respuesta ok", "00", "Receta actualizado");
+            Plato platoBuscado = platoDao.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Plato no encontrado"));
+            actualizarDatosPlato(plato, platoBuscado);
+            Plato platoActualizado = platoDao.save(platoBuscado);
+            response.getPlatoResponse().setPlatos(List.of(platoActualizado));
+            response.setMetadata("Respuesta ok", "00", "Plato actualizado");
         } catch (RuntimeException e) {
-            logger.error("Error al actualizar el receta", e);
+            logger.error("Error al actualizar el plato", e);
             response.setMetadata("Respuesta nok", "-1", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            logger.error("Error al actualizar el receta", e);
-            response.setMetadata("Respuesta nok", "-1", "Error al actualizar receta");
+            logger.error("Error al actualizar el plato", e);
+            response.setMetadata("Respuesta nok", "-1", "Error al actualizar plato");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<RecetaResponseRest> eliminar(Long id) {
-        RecetaResponseRest response = new RecetaResponseRest();
+    public ResponseEntity<PlatoResponseRest> eliminar(Long id) {
+        PlatoResponseRest response = new PlatoResponseRest();
         //buscar si tiene ingredientes asociados y preparacion para que no se cayera
         try {
-            recetaDao.deleteById(id);
-            response.setMetadata("respuesta ok", "00", "Receta eliminado");
+            platoDao.deleteById(id);
+            response.setMetadata("respuesta ok", "00", "Plato eliminado");
         } catch (Exception e) {
             logger.error("Error al eliminar la receta", e);
             response.setMetadata("Respuesta nok", "-1", "Error al eliminar");
@@ -121,14 +121,14 @@ public class RecetaServiceImpl implements IRecetaService {
     }
 
     @Override
-    public ResponseEntity<RecetaResponseRest> buscarPorNombre(String nombre) {
-        RecetaResponseRest response = new RecetaResponseRest();
+    public ResponseEntity<PlatoResponseRest> buscarPorNombre(String nombre) {
+        PlatoResponseRest response = new PlatoResponseRest();
         try {
-            List<Receta> recetas = recetaDao.findByNombreContainingIgnoreCase(nombre);
-            if(recetas.isEmpty()){
-                response.setMetadata("Respuesta ok", "01", "No existen recetas");
+            List<Plato> platos = platoDao.findByNombreContainingIgnoreCase(nombre);
+            if(platos.isEmpty()){
+                response.setMetadata("Respuesta ok", "01", "No existen platos");
             }else{
-                response.getRecetaResponse().setRecetas(recetas);
+                response.getPlatoResponse().setPlatos(platos);
                 response.setMetadata("Respuesta ok", "00", "Respuesta exitosa");
             }
 
@@ -140,7 +140,7 @@ public class RecetaServiceImpl implements IRecetaService {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    private void actualizarDatosPlato(Receta source, Receta target) {
+    private void actualizarDatosPlato(Plato source, Plato target) {
         target.setNombre(source.getNombre() != null ? source.getNombre() : target.getNombre());
         target.setPvp(source.getPvp() != null ? source.getPvp() : target.getPvp());
     }

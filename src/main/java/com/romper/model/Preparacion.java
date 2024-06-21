@@ -32,8 +32,8 @@ public class Preparacion implements Serializable {
 
     @ManyToOne
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    @JoinColumn(name = "receta_id")
-    private Receta receta;
-    @Column(name = "receta_id", insertable = false, updatable = false)
-    private Long recetaId;
+    @JoinColumn(name = "plato_id")
+    private Plato plato;
+    @Column(name = "plato_id", insertable = false, updatable = false)
+    private Long platoId;
 }
