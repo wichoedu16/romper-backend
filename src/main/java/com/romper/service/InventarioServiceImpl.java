@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class InventarioServiceImpl implements IInventarioService {
@@ -109,6 +110,7 @@ public class InventarioServiceImpl implements IInventarioService {
             Integer total = calcularInventario(ingrediente, inventario);
             inventario.setTotal(total);
             Inventario inventarioNuevo = inventarioDao.save(inventario);
+            actualizarIngrediente(inventarioNuevo);
             response.getInventarioResponse().setInventarios(List.of(inventarioNuevo));
             response.setMetadata("Respuesta ok", "00", "Ingrediente guardado");
         } catch (ResourceNotFoundException e) {
@@ -121,6 +123,14 @@ public class InventarioServiceImpl implements IInventarioService {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    private void actualizarIngrediente(Inventario inventario) {
+        Optional<Ingrediente> ingrediente = ingredienteDao.findById(inventario.getIngredienteId());
+        if(ingrediente.isPresent()){
+            ingrediente.get().setCantidad(inventario.getTotal());
+            Ingrediente guardado = ingredienteDao.save(ingrediente.get());
+        }
     }
 
     private Integer calcularInventario(Ingrediente ingrediente, Inventario inventario) {
