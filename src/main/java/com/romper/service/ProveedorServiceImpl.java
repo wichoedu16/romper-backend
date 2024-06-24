@@ -53,6 +53,27 @@ public class ProveedorServiceImpl implements IProveedorService {
 
     @Override
     @Transactional(readOnly = true)
+    public ResponseEntity<ProveedorResponseRest> buscarPorNombre(String nombre) {
+        ProveedorResponseRest response = new ProveedorResponseRest();
+        try {
+            List<Proveedor> proveedores = (List<Proveedor>) proveedorDao.findByEmpresaContainingIgnoreCaseOrNombreProveedorContainingIgnoreCase(nombre, nombre);
+            if(proveedores.isEmpty()){
+                response.setMetadata("Respuesta ok", "01", "No existen proveedores");
+            }else{
+                response.getProveedorResponse().setProveedores(proveedores);
+                response.setMetadata("Respuesta ok", "00", "Respuesta exitosa");
+            }
+
+        } catch (Exception e) {
+            logger.error("Error al consultar todos los Proveedores", e);
+            response.setMetadata("Respuesta nok", "-1", "Error al consultar");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public ResponseEntity<ProveedorResponseRest> buscarPorId(Long id) {
         ProveedorResponseRest response = new ProveedorResponseRest();
         try {
@@ -144,8 +165,15 @@ public class ProveedorServiceImpl implements IProveedorService {
     }
 
     private void actualizarDatosProveedor(Proveedor source, Proveedor target) {
-        target.setEmpresa(source.getEmpresa());
-        target.setNombre(source.getNombre());
-        target.setContacto(source.getContacto());
+        target.setEmpresa(source.getEmpresa() != null ? source.getEmpresa() : target.getEmpresa());
+        target.setNombreProveedor(source.getNombreProveedor() != null ? source.getNombreProveedor() : target.getNombreProveedor());
+        target.setTelefonoProveedor(source.getTelefonoProveedor() != null ? source.getTelefonoProveedor() : target.getTelefonoProveedor());
+        target.setIdentificacion(source.getIdentificacion() != null ? source.getIdentificacion() : target.getIdentificacion());
+        target.setNombreContacto(source.getNombreContacto() != null ? source.getNombreContacto() : target.getNombreContacto());
+        target.setBanco(source.getBanco() != null ? source.getBanco() : target.getBanco());
+        target.setNumeroCuenta(source.getNumeroCuenta() != null ? source.getNumeroCuenta() : target.getNumeroCuenta());
+        target.setTipoCuenta(source.getTipoCuenta() != null ? source.getTipoCuenta() : target.getTipoCuenta());
+        target.setTelefonoContacto(source.getTelefonoContacto() != null ? source.getTelefonoContacto() : target.getTelefonoContacto());
+        target.setCorreoContacto(source.getCorreoContacto() != null ? source.getCorreoContacto() : target.getCorreoContacto());
     }
 }

@@ -131,7 +131,25 @@ public class PlatoServiceImpl implements IPlatoService {
                 response.getPlatoResponse().setPlatos(platos);
                 response.setMetadata("Respuesta ok", "00", "Respuesta exitosa");
             }
+        } catch (Exception e) {
+            logger.error("Error al consultar todos los platos", e);
+            response.setMetadata("Respuesta nok", "-1", "Error al consultar");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
+    @Override
+    public ResponseEntity<PlatoResponseRest> buscarPorEstado(String estado) {
+        PlatoResponseRest response = new PlatoResponseRest();
+        try {
+            List<Plato> platos = platoDao.findByEstadoStartsWith(estado);
+            if(platos.isEmpty()){
+                response.setMetadata("Respuesta ok", "01", "No existen platos");
+            }else{
+                response.getPlatoResponse().setPlatos(platos);
+                response.setMetadata("Respuesta ok", "00", "Respuesta exitosa");
+            }
         } catch (Exception e) {
             logger.error("Error al consultar todos los platos", e);
             response.setMetadata("Respuesta nok", "-1", "Error al consultar");
@@ -143,5 +161,6 @@ public class PlatoServiceImpl implements IPlatoService {
     private void actualizarDatosPlato(Plato source, Plato target) {
         target.setNombre(source.getNombre() != null ? source.getNombre() : target.getNombre());
         target.setPvp(source.getPvp() != null ? source.getPvp() : target.getPvp());
+        target.setEstado(source.getEstado() != null ? source.getEstado() : target.getEstado());
     }
 }

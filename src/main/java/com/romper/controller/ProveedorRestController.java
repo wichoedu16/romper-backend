@@ -26,6 +26,10 @@ public class ProveedorRestController {
         return proveedorService.buscarTodos();
     }
 
+    @GetMapping("/filtro/{nombre}")
+    public ResponseEntity<ProveedorResponseRest> buscarPorNombre(@PathVariable String nombre) {
+        return proveedorService.buscarPorNombre(nombre);
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProveedorResponseRest> buscarPorId(@PathVariable Long id) {

@@ -8,4 +8,6 @@ import java.util.List;
 public interface IPlatoDao extends CrudRepository<Plato, Long> {
 
     List<Plato> findByNombreContainingIgnoreCase(String nombre);
+
+    List<Plato> findByEstadoStartsWith(String estado);
 }

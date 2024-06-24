@@ -26,8 +26,6 @@ public class Ingrediente implements Serializable {
     private String unidad;
     @Column(nullable = false)
     private BigDecimal costo;
-    @Column(nullable = false)
-    private BigDecimal pvp;
 
     @ManyToOne
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -35,7 +33,4 @@ public class Ingrediente implements Serializable {
     private Proveedor proveedor;
     @Column(name = "proveedor_id", insertable = false, updatable = false)
     private Long proveedorId;
-
-
-
 }

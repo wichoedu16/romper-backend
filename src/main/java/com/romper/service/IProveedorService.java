@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 
 public interface IProveedorService {
     ResponseEntity<ProveedorResponseRest> buscarTodos();
+    ResponseEntity<ProveedorResponseRest> buscarPorNombre(String nombre);
     ResponseEntity<ProveedorResponseRest> buscarPorId(Long id);
     ResponseEntity<ProveedorResponseRest> crear(Proveedor cargo);
     ResponseEntity<ProveedorResponseRest> actualizar(Proveedor cargo, Long id);

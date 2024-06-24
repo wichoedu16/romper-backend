@@ -21,5 +21,6 @@ public class Plato implements Serializable {
     private String nombre;
     @Column(nullable = false)
     private BigDecimal pvp;
-
+    @Column(nullable = false)
+    private String estado;
 }

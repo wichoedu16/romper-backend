@@ -11,4 +11,5 @@ public interface IPlatoService {
     ResponseEntity<PlatoResponseRest> actualizar(Plato plato, Long id);
     ResponseEntity<PlatoResponseRest> eliminar(Long id);
     ResponseEntity<PlatoResponseRest> buscarPorNombre(String nombre);
+    ResponseEntity<PlatoResponseRest> buscarPorEstado(String estado);
 }

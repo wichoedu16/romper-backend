@@ -31,6 +31,11 @@ public class PlatoRestController {
         return platoService.buscarPorNombre(nombre);
     }
 
+    @GetMapping("/estado/{estado}")
+    public ResponseEntity<PlatoResponseRest> buscarPorEstado(@PathVariable String estado) {
+        return platoService.buscarPorEstado(estado);
+    }
+
     @PostMapping()
     public ResponseEntity<PlatoResponseRest> crear(@RequestBody Plato plato){
         return platoService.crear(plato);

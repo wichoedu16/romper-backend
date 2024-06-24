@@ -9,4 +9,5 @@ import java.util.Optional;
 
 public interface IProveedorDao extends CrudRepository<Proveedor, Long> {
 
+    List<Proveedor> findByEmpresaContainingIgnoreCaseOrNombreProveedorContainingIgnoreCase(String proveedor, String nombre);
 }
