@@ -5,7 +5,6 @@ import com.romper.dao.IDepartamentoDao;
 import com.romper.model.Cargo;
 import com.romper.model.Departamento;
 import com.romper.response.CargoResponseRest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,13 +17,16 @@ import java.util.List;
 @Service
 public class CargoServiceImpl implements ICargoService {
 
-    @Autowired
-    private ICargoDao cargoDao;
+    private final ICargoDao cargoDao;
 
-    @Autowired
-    private IDepartamentoDao departamentoDao;
+    private final IDepartamentoDao departamentoDao;
 
     private static final Logger logger = LoggerFactory.getLogger(CargoServiceImpl.class);
+
+    public CargoServiceImpl(ICargoDao cargoDao, IDepartamentoDao departamentoDao) {
+        this.cargoDao = cargoDao;
+        this.departamentoDao = departamentoDao;
+    }
 
     @Override
     @Transactional(readOnly = true)

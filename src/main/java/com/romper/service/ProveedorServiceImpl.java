@@ -56,7 +56,7 @@ public class ProveedorServiceImpl implements IProveedorService {
     public ResponseEntity<ProveedorResponseRest> buscarPorNombre(String nombre) {
         ProveedorResponseRest response = new ProveedorResponseRest();
         try {
-            List<Proveedor> proveedores = (List<Proveedor>) proveedorDao.findByEmpresaContainingIgnoreCaseOrNombreProveedorContainingIgnoreCase(nombre, nombre);
+            List<Proveedor> proveedores = proveedorDao.findByEmpresaContainingIgnoreCaseOrNombreProveedorContainingIgnoreCase(nombre, nombre);
             if(proveedores.isEmpty()){
                 response.setMetadata("Respuesta ok", "01", "No existen proveedores");
             }else{

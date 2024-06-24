@@ -7,27 +7,29 @@ import com.romper.model.Venta;
 import com.romper.response.VentaResponseRest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class VentaServiceImpl implements IVentaService {
 
-    @Autowired
-    private IVentaDao ventaDao;
+    public static final String RESPUESTA_OK = "Respuesta ok";
+    private final IVentaDao ventaDao;
 
-    @Autowired
-    private IPlatoDao platoDao;
+    private final IPlatoDao platoDao;
 
     private static final Logger logger = LoggerFactory.getLogger(VentaServiceImpl.class);
+
+    public VentaServiceImpl(IVentaDao ventaDao, IPlatoDao platoDao) {
+        this.ventaDao = ventaDao;
+        this.platoDao = platoDao;
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -36,7 +38,7 @@ public class VentaServiceImpl implements IVentaService {
         try{
             List<Venta> ventas = (List<Venta>) ventaDao.findAll();
             response.getVentaResponse().setVentas(ventas);
-            response.setMetadata("Respuesta ok", "00", "Respuesta exitosa");
+            response.setMetadata(RESPUESTA_OK, "00", "Respuesta exitosa");
         }
         catch (Exception e){
             logger.error("Error al consultar todas las ventas", e);
@@ -54,7 +56,7 @@ public class VentaServiceImpl implements IVentaService {
             Venta venta = ventaDao.findById(id)
                     .orElseThrow(() -> new RuntimeException("Venta no encontrada"));
             response.getVentaResponse().setVentas(List.of(venta));
-            response.setMetadata("Respuesta ok", "00", "Venta encontrada");
+            response.setMetadata(RESPUESTA_OK, "00", "Venta encontrada");
         } catch (RuntimeException e) {
             logger.error("Error al consultar la venta por id", e);
             response.setMetadata("Respuesta nok", "-1", e.getMessage());
@@ -76,7 +78,7 @@ public class VentaServiceImpl implements IVentaService {
             List<Venta> ventas = ventaDao.findByFechaVentaBetween(inicio, fin);
             if (!ventas.isEmpty()) {
                 response.getVentaResponse().setVentas(ventas);
-                response.setMetadata("Respuesta ok", "00", "Ventas encontradas en ese rango de fechas");
+                response.setMetadata(RESPUESTA_OK, "00", "Ventas encontradas en ese rango de fechas");
             } else {
                 response.setMetadata("Respuesta nok", "-1", "No se encontraron ventas en ese rango de fechas");
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
@@ -101,7 +103,7 @@ public class VentaServiceImpl implements IVentaService {
             venta = validarTotal(venta);
             Venta ventaGuardada = ventaDao.save(venta);
             response.getVentaResponse().setVentas(List.of(ventaGuardada));
-            response.setMetadata("Respuesta ok", "00", "Venta guardada");
+            response.setMetadata(RESPUESTA_OK, "00", "Venta guardada");
         }catch (RuntimeException e) {
             logger.error("Error al crear la venta", e);
             response.setMetadata("Respuesta nok", "-1", e.getMessage());

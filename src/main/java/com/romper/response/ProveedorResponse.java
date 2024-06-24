@@ -1,6 +1,5 @@
 package com.romper.response;
 
-import com.romper.model.Cargo;
 import com.romper.model.Proveedor;
 import lombok.Data;
 

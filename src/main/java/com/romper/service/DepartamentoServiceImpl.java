@@ -5,7 +5,6 @@ import com.romper.model.Departamento;
 import com.romper.response.DepartamentoResponseRest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -15,10 +14,13 @@ import java.util.List;
 @Service
 public class DepartamentoServiceImpl implements IDepartamentoService {
 
-    @Autowired
-    private IDepartamentoDao departamentoDao;
+    private final IDepartamentoDao departamentoDao;
 
     private static final Logger logger = LoggerFactory.getLogger(DepartamentoServiceImpl.class);
+
+    public DepartamentoServiceImpl(IDepartamentoDao departamentoDao) {
+        this.departamentoDao = departamentoDao;
+    }
 
     @Override
     @Transactional(readOnly = true)
