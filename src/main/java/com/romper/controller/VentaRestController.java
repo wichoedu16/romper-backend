@@ -42,4 +42,9 @@ public class VentaRestController {
         return ventaService.crear(venta);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<VentaResponseRest> actualizar(@RequestBody Venta venta, @PathVariable Long id){
+        return ventaService.actualizar(venta, id);
+    }
+
 }

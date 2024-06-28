@@ -28,6 +28,7 @@ public class Venta implements Serializable {
     private BigDecimal precio;
     @Column(nullable = false)
     private BigDecimal total;
+    private String estado;
 
     @ManyToOne
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})

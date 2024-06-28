@@ -12,4 +12,5 @@ public interface IVentaService {
     ResponseEntity<VentaResponseRest> buscarPorId(Long id);
     ResponseEntity<VentaResponseRest> buscarPorFechas(LocalDateTime inicio, LocalDateTime fin);
     ResponseEntity<VentaResponseRest> crear(Venta venta);
+    ResponseEntity<VentaResponseRest> actualizar(Venta venta, Long id);
 }

@@ -3,6 +3,7 @@ package com.romper.service;
 import com.romper.dao.IPlatoDao;
 import com.romper.dao.IVentaDao;
 import com.romper.model.Plato;
+import com.romper.model.Proveedor;
 import com.romper.model.Venta;
 import com.romper.response.VentaResponseRest;
 import org.slf4j.Logger;
@@ -117,10 +118,41 @@ public class VentaServiceImpl implements IVentaService {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @Override
+    public ResponseEntity<VentaResponseRest> actualizar(Venta venta, Long id) {
+        VentaResponseRest response = new VentaResponseRest();
+        try {
+            Venta ventaBuscada = ventaDao.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Venta no encontrado"));
+            actualizarDatos(venta, ventaBuscada);
+            Venta ventaActualizada = ventaDao.save(ventaBuscada);
+            response.getVentaResponse().setVentas(List.of(ventaActualizada));
+            response.setMetadata("Respuesta ok", "00", "Venta actualizada");
+        } catch (RuntimeException e) {
+            logger.error("Error al actualizar", e);
+            response.setMetadata("Respuesta nok", "-1", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            logger.error("Error al actualizar el proveedor", e);
+            response.setMetadata("Respuesta nok", "-1", "Error al actualizar");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    private void actualizarDatos(Venta source, Venta target) {
+        target.setPrecio(source.getPrecio() != null ? source.getPrecio() : target.getPrecio());
+        target.setTotal(source.getTotal() != null ? source.getTotal() : target.getTotal());
+        target.setEstado(source.getEstado() != null ? source.getEstado() : target.getEstado());
+        target.setFechaVenta(source.getFechaVenta() != null ? source.getFechaVenta() : target.getFechaVenta());
+    }
+
     private Venta validarTotal(Venta venta) {
         venta.setPrecio(venta.getPlato().getPvp());
         BigDecimal total = venta.getPlato().getPvp().multiply(BigDecimal.valueOf(venta.getCantidad()));
         venta.setTotal(total);
         return venta;
     }
+
+
 }

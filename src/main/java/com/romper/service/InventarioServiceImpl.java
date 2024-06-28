@@ -129,7 +129,7 @@ public class InventarioServiceImpl implements IInventarioService {
         Optional<Ingrediente> ingrediente = ingredienteDao.findById(inventario.getIngredienteId());
         if(ingrediente.isPresent()){
             ingrediente.get().setCantidad(inventario.getTotal());
-            Ingrediente guardado = ingredienteDao.save(ingrediente.get());
+            Ingrediente ingredienteActualizado = ingredienteDao.save(ingrediente.get());
         }
     }
 
